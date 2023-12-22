@@ -53,24 +53,17 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/tasks/:email", async (req, res) => {
-      const query = { email: req.params.email };
-      const result = await taskCollection.find(query).toArray();
-      res.send(result);
-    });
-
     app.post("/tasks", async (req, res) => {
       const task = req.body;
       const result = await taskCollection.insertOne(task);
       res.send(result);
     });
 
-    app.put("/tasks/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const option = { upsert: true };
+    app.patch("/tasks/:id", async (req, res) => {
       const item = req.body;
-      const task = {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const editedTask = {
         $set: {
           title: item.title,
           description: item.description,
@@ -79,7 +72,8 @@ async function run() {
           ownerEmail: item.ownerEmail,
         },
       };
-      const result = await taskCollection.updateOne(query, task, option);
+
+      const result = await taskCollection.updateOne(filter, editedTask);
       res.send(result);
     });
 
